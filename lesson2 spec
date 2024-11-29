@@ -1,0 +1,55 @@
+require 'minitest/autorun'
+require 'minitest/spec'
+require 'minitest/reporters'
+require 'date'
+
+Minitest::Reporters.use! [
+  Minitest::Reporters::HtmlReporter.new(
+    reports_dir: 'test/reports',
+    report_filename: 'student_spec_test_results.html'
+  )
+]
+
+describe Student do
+  let(:student1) { Student.new("Буртовой", "Стас", Date.new(2005, 11, 4)) }
+  let(:student2) { Student.new("Иванов", "Иван", Date.new(2004, 6, 15)) }
+
+  describe "Initialization" do
+    it "correctly initializes a student" do
+      _(student1.surname).must_equal "Буртовой"
+      _(student1.name).must_equal "Стас"
+      _(student1.date_of_birth).must_equal Date.new(2005, 11, 4)
+    end
+
+    it "raises error when date of birth is in the future" do
+      _(proc { Student.new("Буртовой", "Стас", Date.today + 1) }).must_raise ArgumentError
+    end
+  end
+
+  describe "Calculating age" do
+    it "calculates the correct age" do
+      _(student1.calculate_age).must_equal ((Date.today - student1.date_of_birth).to_i / 365.25).to_i
+    end
+  end
+
+  describe "Adding students" do
+    it "adds a student to the list" do
+      _(Student.students).must_include student1
+      _(Student.students).must_include student2
+    end
+
+    it "prevents adding duplicate students" do
+      _(proc { Student.new("Буртовой", "Стас", Date.new(2005, 11, 4)) }).must_raise ArgumentError
+    end
+  end
+
+  describe "Retrieving students" do
+    it "gets students by age" do
+      _(Student.get_students_by_age(student1.calculate_age)).must_include student1
+    end
+
+    it "gets students by name" do
+      _(Student.get_students_by_name("Стас")).must_include student1
+    end
+  end
+end
