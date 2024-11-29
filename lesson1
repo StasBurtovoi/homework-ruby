@@ -1,0 +1,51 @@
+class Student
+  attr_accessor :surname, :name, :date_of_birth
+  
+  @students = []
+
+  class << self
+    attr_reader :students
+
+    def add_student(student)
+      unless @students.include?(student)
+        @students << student
+      else
+        raise ArgumentError,
+      end
+    end
+
+    def remove_student(student)
+      @students.delete(student)
+    end
+
+    def get_students_by_age(age)
+      @students.select { |student| student.calculate_age == age }
+    end
+
+    def get_students_by_name(name)
+      @students.select { |student| student.name.downcase == name.downcase }
+    end
+  end
+
+  def initialize(surname, name, date_of_birth)
+    @surname = surname
+    @name = name
+    self.date_of_birth = date_of_birth
+    self.class.add_student(self)
+  end
+
+  def date_of_birth=(dob)
+    if dob > Date.today
+      raise ArgumentError,
+    end
+    @date_of_birth = dob
+  end
+
+  def calculate_age
+    ((Date.today - @date_of_birth).to_i / 365.25).to_i
+  end
+
+  def ==(other)
+    other.is_a?(Student) && surname == other.surname && name == other.name && date_of_birth == other.date_of_birth
+  end
+end
