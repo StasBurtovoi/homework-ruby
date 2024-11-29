@@ -1,0 +1,52 @@
+require 'minitest/autorun'
+require 'minitest/reporters'
+require 'date'
+
+Minitest::Reporters.use! [
+  Minitest::Reporters::HtmlReporter.new(
+    reports_dir: 'test/reports',
+    report_filename: 'student_test_results.html'
+  )
+]
+
+class StudentTest < Minitest::Test
+  def setup
+    @student1 = Student.new("Буртовой", "Стас", Date.new(2005, 11, 4))
+    @student2 = Student.new("Иванов", "Иван", Date.new(2004, 6, 15))
+  end
+
+  def test_student_initialization
+    assert_equal "Буртовой", @student1.surname
+    assert_equal "Стас", @student1.name
+    assert_equal Date.new(2005, 11, 4), @student1.date_of_birth
+  end
+
+  def test_calculate_age
+    assert_equal ((Date.today - @student1.date_of_birth).to_i / 365.25).to_i, @student1.calculate_age
+  end
+
+  def test_date_of_birth_in_future
+    assert_raises(ArgumentError) do
+      Student.new("Буртовой", "Стас", Date.today + 1)
+    end
+  end
+
+  def test_add_student
+    assert_includes Student.students, @student1
+    assert_includes Student.students, @student2
+  end
+
+  def test_prevent_duplicate_students
+    assert_raises(ArgumentError) do
+      Student.new("Буртовой", "Стас", Date.new(2005, 11, 4))
+    end
+  end
+
+  def test_get_students_by_age
+    assert_includes Student.get_students_by_age(@student1.calculate_age), @student1
+  end
+
+  def test_get_students_by_name
+    assert_includes Student.get_students_by_name("Стас"), @student1
+  end
+end
